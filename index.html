@@ -12,38 +12,27 @@
 </head>
 <body>
 <main class="device">
-  <!-- the design's status bar (the Sims hide the system one over prototypes) -->
-  <div class="sbar" aria-hidden="true">
-    <span class="sbar__time">9:41</span>
-    <span class="sbar__icons">
-      <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
-      <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.1-1.2A10.2 10.2 0 0 0 8 .9 10.2 10.2 0 0 0 .9 3.8L2 5c1.6-1.5 3.7-2.4 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.1-1.2A7 7 0 0 0 8 4.3a7 7 0 0 0-4.7 1.9l1.1 1.2c1-.9 2.2-1.4 3.6-1.4Zm0 3.3c.6 0 1.1.2 1.5.6L8 11.5 6.5 9.9c.4-.4.9-.6 1.5-.6Z"/></svg>
-      <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.8" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2.5"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" opacity=".45"/></svg>
-    </span>
-  </div>
-
   <div class="scroll" id="scroll">
     <header class="hero">
       <h1>Haptics</h1>
-      <p>Tap anything to feel it. Every control plays a different iOS haptic.</p>
       <span class="engine" id="engine"><i></i><b>Checking…</b></span>
     </header>
 
-    <nav class="chips" id="chips" aria-label="Sections">
-      <button class="chip is-on" data-to="s-basics">Basics</button>
-      <button class="chip" data-to="s-strength">Strength</button>
-      <button class="chip" data-to="s-patterns">Patterns</button>
-      <button class="chip" data-to="s-controls">Controls</button>
-      <button class="chip" data-to="s-pin">PIN</button>
+    <nav class="chips" id="chips" role="tablist" aria-label="Sections">
+      <i class="chips__pill" aria-hidden="true"></i>
+      <button class="chip is-on" role="tab" data-to="basics">Basics</button>
+      <button class="chip" role="tab" data-to="patterns">Patterns</button>
+      <button class="chip" role="tab" data-to="controls">Controls</button>
+      <button class="chip" role="tab" data-to="pin">Passcode</button>
     </nav>
 
-    <section class="sec" id="s-basics">
-      <div class="sec__h"><h2>Basics</h2><span>The nine system haptics</span></div>
+    <section class="sec is-on" id="s-basics" data-tab="basics">
+      <h2 class="sec__h">System</h2>
       <div class="keys" id="g-basic"></div>
     </section>
 
-    <section class="sec" id="s-strength">
-      <div class="sec__h"><h2>Strength</h2><span>Pick a style, then a level</span></div>
+    <section class="sec is-on" id="s-strength" data-tab="basics">
+      <h2 class="sec__h">Strength</h2>
       <div class="card card--pad">
         <div class="seg" id="style-seg" role="tablist" style="--n:5">
           <i class="seg__pill" aria-hidden="true"></i>
@@ -57,14 +46,13 @@
       </div>
     </section>
 
-    <section class="sec" id="s-patterns">
-      <div class="sec__h"><h2>Patterns</h2><span>24 custom sequences</span></div>
-      <div class="pats" id="g-patterns"></div>
+    <section class="sec" id="s-patterns" data-tab="patterns">
+      <div class="card pats" id="g-patterns"></div>
     </section>
 
-    <section class="sec" id="s-controls">
-      <div class="sec__h"><h2>Controls</h2><span>Haptics in real components</span></div>
+    <section class="sec" id="s-controls" data-tab="controls">
 
+      <h2 class="sec__h">Pickers</h2>
       <div class="card">
         <div class="row row--stack">
           <div class="row__t"><b>Segmented control</b><small>Selection tick</small></div>
@@ -82,6 +70,7 @@
         </div>
       </div>
 
+      <h2 class="sec__h">Switches</h2>
       <div class="card">
         <div class="row"><div class="row__t"><b>Soft on, rigid off</b></div><button class="tg" role="switch" aria-checked="false" data-on="soft" data-off="rigid" aria-label="Soft on, rigid off"></button></div>
         <div class="row"><div class="row__t"><b>Heavy on, light off</b></div><button class="tg" role="switch" aria-checked="true" data-on="heavy" data-off="light" aria-label="Heavy on, light off"></button></div>
@@ -89,6 +78,7 @@
         <label class="row"><div class="row__t"><b>System switch</b><small>Safari plays its own tick</small></div><input class="native-sw" type="checkbox" switch></label>
       </div>
 
+      <h2 class="sec__h">Inputs</h2>
       <div class="card">
         <div class="row"><div class="row__t"><b>Quantity</b><small>Warning at the limit</small></div>
           <div class="stepper" id="stepper"><button data-d="-1" aria-label="Less"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button><output>1</output><button data-d="1" aria-label="More"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button></div></div>
@@ -96,6 +86,7 @@
           <div class="stars" id="stars"><button aria-label="1 star"></button><button aria-label="2 stars"></button><button aria-label="3 stars"></button><button aria-label="4 stars"></button><button aria-label="5 stars"></button></div></div>
       </div>
 
+      <h2 class="sec__h">Actions</h2>
       <div class="acts" id="actions">
         <button class="act" data-act="like" aria-pressed="false"><i><svg viewBox="0 0 24 24"><path d="M12 20 4.9 13.2a4.5 4.5 0 0 1 6.4-6.4l.7.7.7-.7a4.5 4.5 0 0 1 6.4 6.4Z"/></svg></i><span>Like</span></button>
         <button class="act" data-act="save" aria-pressed="false"><i><svg viewBox="0 0 24 24"><path d="M7 4h10v16l-5-3.6L7 20Z"/></svg></i><span>Save</span></button>
@@ -104,20 +95,20 @@
         <button class="act act--del" data-act="del"><i><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l.8 12h8.4L17 7"/></svg></i><span>Delete</span></button>
       </div>
 
+      <h2 class="sec__h">Gestures</h2>
       <div class="card card--pad card--gap">
         <button class="hold" id="hold"><i class="hold__fill"></i><span>Hold to confirm</span></button>
         <div class="unlock" id="unlock"><span class="unlock__txt">Slide to unlock</span><i class="unlock__knob"><svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></i></div>
       </div>
     </section>
 
-    <section class="sec" id="s-pin">
-      <div class="sec__h"><h2>Passcode</h2><span>Try 2580</span></div>
+    <section class="sec" id="s-pin" data-tab="pin">
       <div class="card pin">
         <div class="pin__dots" id="pin-dots"><i></i><i></i><i></i><i></i></div>
+        <p class="pin__hint">Try 2580</p>
         <div class="pin__pad" id="pin-pad"></div>
       </div>
     </section>
-    <p class="foot">Open in Vercel Sim on an iPhone to feel the real Taptic Engine.</p>
   </div>
 
   <aside class="now" id="now" aria-live="polite">

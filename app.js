@@ -18,11 +18,6 @@ const toast = (() => {
   return (msg) => { t.textContent = msg; t.classList.add('on'); clearTimeout(h); h = setTimeout(() => t.classList.remove('on'), 1400); };
 })();
 
-// live clock in the design's status bar
-const clock = $('.sbar__time');
-const tickClock = () => { const d = new Date(); clock.textContent = `${d.getHours() % 12 || 12}:${String(d.getMinutes()).padStart(2, '0')}`; };
-tickClock(); setInterval(tickClock, 15000);
-
 // ─── engine ────────────────────────────────────────────────────────────────────────────────
 const bridge = () => window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.haptic;
 const IMPACT = ['light', 'medium', 'heavy', 'soft', 'rigid'];
@@ -168,6 +163,7 @@ const nowWave = $('#now-wave');
 
 function show(fx) {
   lastFx = fx;
+  $('#now').classList.add('is-on');
   $('#now-name').textContent = fx.name;
   $('#now-code').textContent = fx.code || (fx.steps.length === 1 ? swiftCall(fx.steps[0][1], fx.steps[0][2]) : `CHHapticPattern · ${barsOf(fx.steps).length} events · ${(durationOf(fx.steps) / 1000).toFixed(2)} s`);
   drawWave(nowWave, fx.steps, 48, 24);
@@ -244,12 +240,12 @@ const cap = (k) => k[0].toUpperCase() + k.slice(1);
 });
 tap($('#g-basic'), '.key', (el) => play(CAT[el.dataset.fx], el));
 
-// patterns: 2-up cards with their waveform
+// patterns: one list, name on the left, a small waveform and the length on the right
 PATTERNS.forEach((fx) => {
   const b = document.createElement('button');
   b.className = 'pat'; b.dataset.fx = fx.id;
-  b.innerHTML = `<svg class="wave" aria-hidden="true"></svg><b>${fx.name}</b><small>${fx.sub}</small>`;
-  drawWave($('.wave', b), fx.steps, 140, 30);
+  b.innerHTML = `<b>${fx.name}</b><svg class="wave" aria-hidden="true"></svg><small>${(durationOf(fx.steps) / 1000).toFixed(1)} s</small>`;
+  drawWave($('.wave', b), fx.steps, 72, 18);
   CAT[fx.id] = fx;
   $('#g-patterns').append(b);
 });
@@ -275,34 +271,21 @@ function segmented(seg, onPick) {
   segmented($('#style-seg'), (b) => { style = b.dataset.k; play(fxOf('selection', 1, `Style · ${cap(style)}`)); });
 }
 
-// section chips: jump to a section; the chip of the section in view stays lit
+// tabs: one section group at a time; the pill slides to the chosen tab
 {
   const sc = $('#scroll'), chips = $('#chips'), cs = $$('.chip', chips);
-  const secs = cs.map((c) => document.getElementById(c.dataset.to));
-  let lock = 0;
-  // a section's top, in CSS px below the chips' bottom edge (the frame may be scaled)
-  const below = (el) => (el.getBoundingClientRect().top - chips.getBoundingClientRect().bottom) / scaleOf(sc);
-  const light = (c) => {
-    if (c.classList.contains('is-on')) return;
-    cs.forEach((x) => x.classList.toggle('is-on', x === c));
-    c.scrollIntoView({ inline: 'nearest', block: 'nearest' });
-  };
+  const stuck = () => chips.classList.toggle('is-stuck', (chips.getBoundingClientRect().top - sc.getBoundingClientRect().top) / scaleOf(sc) <= parseFloat(getComputedStyle(sc).paddingTop) + 1);
   tap(chips, '.chip', (c) => {
-    light(c); lock = performance.now() + 700;
-    play(fxOf('selection', 1, `Jump · ${c.textContent}`));
-    // once stuck the chips sit at the top inset, so the section lands just under them
-    const stuckBottom = parseFloat(getComputedStyle(sc).paddingTop) + chips.offsetHeight;
-    const fromTop = (document.getElementById(c.dataset.to).getBoundingClientRect().top - sc.getBoundingClientRect().top) / scaleOf(sc);
-    sc.scrollTo({ top: sc.scrollTop + fromTop - stuckBottom - 6, behavior: 'smooth' });
+    if (c.classList.contains('is-on')) return;
+    cs.forEach((x, n) => { x.classList.toggle('is-on', x === c); x.setAttribute('aria-selected', x === c); if (x === c) chips.style.setProperty('--seg', n); });
+    $$('.sec').forEach((s) => s.classList.toggle('is-on', s.dataset.tab === c.dataset.to));
+    buzz('selection');                     // a tab ticks but stays out of the now-playing bar
+    // keep the tabs where they are if they're stuck, otherwise start the new tab from the top
+    const top = chips.offsetTop - parseFloat(getComputedStyle(sc).paddingTop);
+    sc.scrollTop = Math.min(sc.scrollTop, Math.max(0, top));
+    stuck();
   });
-  const spy = () => {
-    chips.classList.toggle('is-stuck', (chips.getBoundingClientRect().top - sc.getBoundingClientRect().top) / scaleOf(sc) <= parseFloat(getComputedStyle(sc).paddingTop) + 1);
-    if (performance.now() < lock) return;
-    let cur = 0; secs.forEach((s, j) => { if (below(s) <= 60) cur = j; });
-    if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4) cur = secs.length - 1;
-    light(cs[cur]);
-  };
-  sc.addEventListener('scroll', spy, { passive: true }); spy();
+  sc.addEventListener('scroll', stuck, { passive: true }); stuck();
 }
 
 // segmented control row: the kit plays data-haptic="selection" on the lift; this only moves the pill
