@@ -158,17 +158,7 @@ function drawWave(svg, steps, W, H = 28) {
 }
 
 // ─── player ────────────────────────────────────────────────────────────────────────────────
-let timers = [], playingEl = null, lastFx = null, lastEl = null;
-const nowWave = $('#now-wave');
-
-function show(fx) {
-  lastFx = fx;
-  $('#now').classList.add('is-on');
-  $('#now-name').textContent = fx.name;
-  $('#now-code').textContent = fx.code || (fx.steps.length === 1 ? swiftCall(fx.steps[0][1], fx.steps[0][2]) : `CHHapticPattern · ${barsOf(fx.steps).length} events · ${(durationOf(fx.steps) / 1000).toFixed(2)} s`);
-  drawWave(nowWave, fx.steps, 48, 24);
-  light(nowWave);
-}
+let timers = [], playingEl = null;
 
 function kick(el, k) {
   if (!el) return;
@@ -192,8 +182,6 @@ function stop() {
 
 function play(fx, el = null) {
   stop();
-  lastEl = el;
-  show(fx);
   const wave = el && $('.wave', el);
   if (wave) light(wave);
   if (el) { el.classList.add('is-playing'); playingEl = el; }
@@ -279,7 +267,7 @@ function segmented(seg, onPick) {
     if (c.classList.contains('is-on')) return;
     cs.forEach((x, n) => { x.classList.toggle('is-on', x === c); x.setAttribute('aria-selected', x === c); if (x === c) chips.style.setProperty('--seg', n); });
     $$('.sec').forEach((s) => s.classList.toggle('is-on', s.dataset.tab === c.dataset.to));
-    buzz('selection');                     // a tab ticks but stays out of the now-playing bar
+    buzz('selection');
     // keep the tabs where they are if they're stuck, otherwise start the new tab from the top
     const top = chips.offsetTop - parseFloat(getComputedStyle(sc).paddingTop);
     sc.scrollTop = Math.min(sc.scrollTop, Math.max(0, top));
@@ -289,7 +277,7 @@ function segmented(seg, onPick) {
 }
 
 // segmented control row: the kit plays data-haptic="selection" on the lift; this only moves the pill
-segmented($('#seg'), (b) => show(fxOf('selection', 1, `Segment · ${b.textContent}`)));
+segmented($('#seg'), () => {});
 
 // toggles
 tap(document.querySelector('.device'), '.tg', (el) => {
@@ -302,7 +290,6 @@ tap(document.querySelector('.device'), '.tg', (el) => {
 {
   const sw = $('.native-sw');
   if (!('switch' in HTMLInputElement.prototype)) Object.assign(sw.style, { width: '22px', height: '22px' });
-  sw.addEventListener('change', () => show({ ...fxOf('selection', 1, `Native switch ${sw.checked ? 'on' : 'off'}`), code: '<input type="checkbox" switch> · system tick' }));
 }
 
 // detent slider: 0…10
@@ -400,7 +387,6 @@ tap(document.querySelector('.device'), '.tg', (el) => {
   h.addEventListener('pointerdown', (e) => {
     if (done) return;
     h.setPointerCapture(e.pointerId); stop();
-    show({ name: 'Hold to confirm', steps: [[0, 'light', 0.25], [190, 'light', 0.4], [340, 'light', 0.55], [470, 'rigid', 0.7], [570, 'rigid', 0.85], [640, 'rigid'], [780, 'success']], code: 'light → rigid ramp · 190 → 45 ms · success' });
     $('.hold__fill', h).style.transition = 'none';
     t0 = performance.now(); next = 0; raf = requestAnimationFrame(loop);
   });
@@ -474,23 +460,6 @@ tap(document.querySelector('.device'), '.tg', (el) => {
     }
   });
 }
-
-// ─── now-playing bar ───────────────────────────────────────────────────────────────────────
-drawWave(nowWave, [[0, 'light'], [90, 'medium'], [180, 'heavy'], [270, 'medium'], [360, 'light']], 48, 24);
-async function copyText(s) {
-  try { await navigator.clipboard.writeText(s); return true; } catch (_) {}
-  const ta = Object.assign(document.createElement('textarea'), { value: s });
-  ta.style.cssText = 'position:fixed;left:-999px;top:0;opacity:0';
-  document.body.append(ta); ta.select();
-  let ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
-  ta.remove(); return ok;
-}
-tap($('#now'), '#now-replay', () => { if (lastFx) play(lastFx, lastEl); });
-tap($('#now'), '#now-copy', async () => {
-  if (!lastFx) { toast('Tap a haptic first'); return; }
-  buzz('light', 0.6);
-  toast((await copyText(swiftFull(lastFx))) ? `Swift for “${lastFx.name}” copied` : 'Copy blocked here');
-});
 
 // for checks: window.__haptics.catalogue / swift(id)
 window.__haptics = { BASIC, NOTIFS, PATTERNS, swift: (id) => swiftFull(CAT[id]), barsOf };
