@@ -1,9 +1,99 @@
-/* Haptics Lab · iteration 2 — blank canvas. */
+/* Haptics Lab · iteration 2 — minimal. White page, type and hairlines only; the one colour is
+   on the three notification dots. A row turns faintly grey while its haptic plays. */
 :root {
   --status-h: 0px;
+  --ink: #000;
+  --muted: #8e8e93;
+  --faint: #c7c7cc;
+  --line: rgba(0, 0, 0, .08);
+  --press: #f2f2f4;
+  --pad: 24px;
+  --spring: cubic-bezier(.3, 1.3, .5, 1);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", sans-serif;
-  color: #111113;
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
-.device { background: #f5f5f7; }
+html:not(.is-phone) { --safe-top: 20px; }   /* no status bar drawn, so the desktop frame needs no notch room */
+
+.device { background: #fff; }
+.device, .device * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: inherit; touch-action: manipulation; }
+output { font-variant-numeric: tabular-nums; }
+
+.scroll { padding: var(--top-inset) 0 calc(var(--safe-bottom) + 40px); }
+
+.title { margin: 28px var(--pad) 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -.6px; }
+
+/* tabs — plain words; the chosen one is ink */
+.tabs {
+  position: sticky; z-index: 5; top: 0;   /* sticky offsets start inside .scroll's top-inset padding */
+  display: flex; gap: 22px; padding: 18px var(--pad) 14px; background: #fff;
+  box-shadow: 0 .5px 0 transparent; transition: box-shadow .2s;
+}
+.tabs.is-stuck { box-shadow: 0 .5px 0 var(--line); }
+.tab { font-size: 15px; font-weight: 500; color: var(--faint); transition: color .2s; }
+.tab.is-on { color: var(--ink); }
+
+.sec { display: none; }
+.sec.is-on { display: block; }
+.label { margin: 22px var(--pad) 4px; font-size: 13px; line-height: 18px; font-weight: 400; color: var(--muted); }
+.sec > .list:first-child { margin-top: 6px; }
+
+/* rows */
+.row {
+  position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  width: 100%; min-height: 54px; padding: 0 var(--pad); font-size: 17px; letter-spacing: -.2px;
+  transition: background-color .35s;
+}
+.row + .row::before { content: ""; position: absolute; top: 0; left: var(--pad); right: 0; height: .5px; background: var(--line); }
+button.row:active, .row.is-on { background: var(--press); transition-duration: 0s; }
+.row small { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* a dot that grows with the weight; notification dots carry the only colour */
+.dot { flex: none; width: var(--d, 8px); height: var(--d, 8px); border-radius: 50%; background: var(--c, var(--ink)); }
+.row.is-kick .dot { animation: kick .18s ease-out; }
+@keyframes kick { 40% { transform: scale(1.5); } }
+
+/* intensity — five numbers under the impact list */
+.levels { display: flex; justify-content: space-between; padding: 12px var(--pad) 2px; }
+.lv { font-size: 13px; color: var(--faint); font-variant-numeric: tabular-nums; padding: 6px 0; transition: color .2s; }
+.lv.is-on { color: var(--ink); font-weight: 600; }
+
+/* switch — ink when on */
+.sw { position: relative; flex: none; width: 46px; height: 28px; border-radius: 14px; background: #e9e9eb; transition: background-color .25s; }
+.sw::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .15); transition: transform .35s var(--spring);
+}
+.sw[aria-checked="true"] { background: var(--ink); }
+.sw[aria-checked="true"]::after { transform: translateX(18px); }
+
+/* stepper */
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper button { width: 32px; height: 32px; border-radius: 50%; font-size: 20px; line-height: 32px; text-align: center; color: var(--ink); transition: background-color .2s; }
+.stepper button:active { background: var(--press); }
+.stepper output { min-width: 22px; text-align: center; font-size: 17px; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-2px); } }
+.is-shake { animation: shake .35s ease-out; }
+
+/* slider — a hairline track with ten detents */
+.row--slider { flex-wrap: wrap; row-gap: 0; padding-top: 14px; padding-bottom: 8px; }
+.row--slider output { font-size: 17px; color: var(--muted); }
+.slider { --v: .5; position: relative; flex: 1 0 100%; height: 32px; touch-action: none; cursor: grab; }
+.slider::before { content: ""; position: absolute; left: 0; right: 0; top: 15.5px; height: 1px; background: var(--line); }
+.slider__fill { position: absolute; left: 0; top: 15px; height: 2px; width: calc(10px + var(--v) * (100% - 20px)); background: var(--ink); }
+.slider__thumb {
+  position: absolute; top: 6px; left: calc(var(--v) * (100% - 20px)); width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 1px var(--line), 0 2px 6px rgba(0, 0, 0, .12); transition: transform .2s var(--spring);
+}
+.slider.is-drag .slider__thumb { transform: scale(1.15); }
+.slider.is-snap .slider__thumb { transition: left .16s ease-out, transform .2s var(--spring); }
+.slider.is-snap .slider__fill { transition: width .16s ease-out; }
+
+/* hold to confirm — the row fills from the left while held */
+.hold { overflow: hidden; }
+.hold:active { background: none; }
+.hold__fill { position: absolute; inset: 0; transform-origin: left; transform: scaleX(var(--p, 0)); background: var(--press); }
+.hold span { position: relative; }
+.hold.is-done span { font-weight: 600; }

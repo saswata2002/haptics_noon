@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#f5f5f7">
+<meta name="theme-color" content="#ffffff">
 <title>Haptics Lab · Option 2</title>
 <link rel="stylesheet" href="../phone.css">
 <script src="../phone.js"></script>
@@ -12,7 +12,40 @@
 </head>
 <body>
 <main class="device">
-  <div class="scroll" id="scroll"></div>
+  <div class="scroll" id="scroll">
+    <h1 class="title">Haptics</h1>
+
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Sections">
+      <button class="tab is-on" role="tab" aria-selected="true" data-to="basic">Basic</button>
+      <button class="tab" role="tab" aria-selected="false" data-to="patterns">Patterns</button>
+      <button class="tab" role="tab" aria-selected="false" data-to="controls">Controls</button>
+    </nav>
+
+    <section class="sec is-on" data-tab="basic">
+      <h2 class="label">Impact</h2>
+      <div class="list" id="impact"></div>
+      <div class="levels" id="levels" role="radiogroup" aria-label="Intensity"></div>
+      <h2 class="label">Notification</h2>
+      <div class="list" id="notify"></div>
+      <h2 class="label">Selection</h2>
+      <div class="list" id="select"></div>
+    </section>
+
+    <section class="sec" data-tab="patterns">
+      <div class="list" id="patterns"></div>
+    </section>
+
+    <section class="sec" data-tab="controls">
+      <div class="list">
+        <div class="row"><span>Switch</span><button class="sw" id="sw" role="switch" aria-checked="false" aria-label="Switch"></button></div>
+        <div class="row"><span>Quantity</span>
+          <div class="stepper" id="stepper"><button data-d="-1" aria-label="Less">−</button><output>1</output><button data-d="1" aria-label="More">+</button></div></div>
+        <div class="row row--slider"><span>Slider</span><output id="sl-val">5</output>
+          <div class="slider" id="slider"><i class="slider__fill"></i><i class="slider__thumb"></i></div></div>
+        <button class="row hold" id="hold"><i class="hold__fill"></i><span>Hold to confirm</span></button>
+      </div>
+    </section>
+  </div>
 </main>
 
 <nav class="vswitch" id="vswitch" aria-label="Design variations">
@@ -22,5 +55,6 @@
   <button class="vswitch__b vswitch__reset vswitch__tip" id="vreset" data-tip="Reset" aria-label="Reset the flow — start again from the top"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 10a6.5 6.5 0 1 0 1.9-4.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3.8 2.8v3.4h3.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </nav>
 <script src="../switcher.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
